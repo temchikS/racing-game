@@ -1,3 +1,9 @@
+#Добавить больше видов препятствий(грузовики и т.п)
+#Сделать дорогу больше в моб.режиме
+#Скорость препятствий
+#Ускорение при езде(быстрее и быстрее)
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
