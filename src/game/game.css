@@ -29,8 +29,35 @@
     height: 100%;
     justify-content: center;
 }
-.road{
+.road {
+    position: relative;
     width: 50vw;
     height: 100vh;
     background-color: rgb(98, 98, 98);
+}
+
+.railing {
+    position: absolute;
+    top: 0;
+    width: 10px; /* Adjust the width of the railings as needed */
+    height: 100%;
+    background-color: white; /* Set the color of the railings */
+}
+
+.railing.left {
+    left: 0;
+}
+
+.railing.right {
+    right: 0;
+}
+.car {
+    width: 30px; 
+    height: 50px; 
+    background-color: red;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.5s ease; /* Add a transition property for smooth movement */
 }
