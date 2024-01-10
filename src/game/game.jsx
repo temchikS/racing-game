@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './game.css';
+import start from './start.png';
+import stop from './stop.png';
 
-export default function Game() {
+export default function GameWindow() {
     const [menuHidden, setMenuHidden] = useState(false);
     const [carPosition, setCarPosition] = useState(50);
     const [direction, setDirection] = useState(null);
     const [obstacles, setObstacles] = useState([]);
+    const [gamePaused, setGamePaused] = useState(true);
     const [roadLines, setRoadLines] = useState([]);
-    const [speed, setSpeed] = useState(1);
-
+    
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -30,73 +32,66 @@ export default function Game() {
     }, []);
 
     useEffect(() => {
-        const speedAccelerationInterval = setInterval(() => {
-            setSpeed((prevSpeed) => prevSpeed + 0.2); 
-        }, 10000);
-
-        return () => clearInterval(speedAccelerationInterval);
-    }, [speed]);
-
-    useEffect(() => {
-        if (menuHidden) {
+        
+        if (menuHidden && !gamePaused) {
             const obstacleInterval = setInterval(() => {
                 const newObstacle = {
                     id: Date.now(),
                     left: Math.random() * 80 + 10,
-                    top: -15,
+                    top: -15, 
                     type: Math.random() < 0.5 ? 'blue' : 'green',
                     size: Math.random() < 0.5 ? 'small' : 'large',
                 };
 
                 setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
-            }, 1500);
 
-            const roadLineInterval = setInterval(() => {
                 const newRoadLine = {
                     id: Date.now(),
                     top: -10,
                 };
 
                 setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
-            }, 1000); 
+            }, 1500);
 
-            return () => {
-                clearInterval(obstacleInterval);
-                clearInterval(roadLineInterval);
-            };
+            return () => clearInterval(obstacleInterval);
         }
-    }, [menuHidden, speed]);
+    }, [menuHidden,gamePaused]);
 
     useEffect(() => {
+        if (gamePaused) {
+            return; // Не обновлять препятствия, если игра приостановлена
+        }
+    
         const obstacleMoveInterval = setInterval(() => {
             setObstacles((prevObstacles) =>
                 prevObstacles
                     .map((obstacle) => ({
                         ...obstacle,
-                        top: obstacle.top + speed,
+                        top: obstacle.top + (window.innerWidth <= 768 ? 2 : 1),
                     }))
-                    .filter((obstacle) => obstacle.top <= 110)
+                    .filter((obstacle) => obstacle.top <= 110) // Remove obstacles when they go below 110vh
             );
-
+    
             setRoadLines((prevRoadLines) =>
                 prevRoadLines
                     .map((roadLine) => ({
                         ...roadLine,
-                        top: roadLine.top + speed,
+                        top: roadLine.top + (window.innerWidth <= 768 ? 2 : 1),
                     }))
-                    .filter((roadLine) => roadLine.top <= 110)
-            );
-        }, 20);
-
-        return () => clearInterval(obstacleMoveInterval);
-    }, [speed]);
+                    .filter((roadLine) => roadLine.top <= 110) // Remove road lines when they go below 110vh
+                );
+            }, 20);
+        
+            return () => clearInterval(obstacleMoveInterval);
+        }, [gamePaused]);
+    
 
     useEffect(() => {
         let animationFrameId;
 
         const moveCar = () => {
-            const maxPosition = 100;
-            const minPosition = 0;
+            const maxPosition = 95;
+            const minPosition = 5;
 
             if (direction === 'ArrowLeft') {
                 setCarPosition((prevPosition) => Math.max(prevPosition - 1, minPosition));
@@ -107,17 +102,21 @@ export default function Game() {
             animationFrameId = requestAnimationFrame(moveCar);
         };
 
-        if (direction) {
+        if (direction && !gamePaused) {
             moveCar();
         }
 
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, [direction]);
+    }, [direction,gamePaused]);
 
     function startGame() {
         setMenuHidden(true);
+        setGamePaused(false);
+    }
+    function toggleGame() {
+        setGamePaused((prevGamePaused) => !prevGamePaused);
     }
 
     return (
@@ -133,6 +132,7 @@ export default function Game() {
                     <div className='railing left'></div>
                     <div className='railing right'></div>
                     <div className='car' style={{ left: `${carPosition}%` }}></div>
+                    <img className='start-stop' src={gamePaused ? start : stop} alt="" onClick={toggleGame}/>
 
                     {roadLines.map((roadLine) => (
                         <div
@@ -143,7 +143,6 @@ export default function Game() {
                             }}
                         ></div>
                     ))}
-
                     {obstacles.map((obstacle) => (
                         <div
                             key={obstacle.id}

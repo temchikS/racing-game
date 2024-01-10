@@ -1,8 +1,8 @@
 import './App.css';
-import Game from './game/game';
+import GameWindow from './game/game';
 function App() {
   return (
-    <Game/>
+    <GameWindow/>
   );
 }
 
