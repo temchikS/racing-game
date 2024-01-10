@@ -7,6 +7,7 @@ export default function Game() {
     const [direction, setDirection] = useState(null);
     const [obstacles, setObstacles] = useState([]);
     const [roadLines, setRoadLines] = useState([]);
+    const [speed, setSpeed] = useState(1);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -29,29 +30,42 @@ export default function Game() {
     }, []);
 
     useEffect(() => {
+        const speedAccelerationInterval = setInterval(() => {
+            setSpeed((prevSpeed) => prevSpeed + 0.2); 
+        }, 10000);
+
+        return () => clearInterval(speedAccelerationInterval);
+    }, [speed]);
+
+    useEffect(() => {
         if (menuHidden) {
             const obstacleInterval = setInterval(() => {
                 const newObstacle = {
                     id: Date.now(),
                     left: Math.random() * 80 + 10,
-                    top: -15, 
+                    top: -15,
                     type: Math.random() < 0.5 ? 'blue' : 'green',
                     size: Math.random() < 0.5 ? 'small' : 'large',
                 };
 
                 setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
+            }, 1500);
 
+            const roadLineInterval = setInterval(() => {
                 const newRoadLine = {
                     id: Date.now(),
                     top: -10,
                 };
 
                 setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
-            }, 1500);
+            }, 1000); 
 
-            return () => clearInterval(obstacleInterval);
+            return () => {
+                clearInterval(obstacleInterval);
+                clearInterval(roadLineInterval);
+            };
         }
-    }, [menuHidden]);
+    }, [menuHidden, speed]);
 
     useEffect(() => {
         const obstacleMoveInterval = setInterval(() => {
@@ -59,23 +73,23 @@ export default function Game() {
                 prevObstacles
                     .map((obstacle) => ({
                         ...obstacle,
-                        top: obstacle.top + (window.innerWidth <= 768 ? 2 : 1),
+                        top: obstacle.top + speed,
                     }))
-                    .filter((obstacle) => obstacle.top <= 110) // Remove obstacles when they go below 110vh
+                    .filter((obstacle) => obstacle.top <= 110)
             );
-    
+
             setRoadLines((prevRoadLines) =>
                 prevRoadLines
                     .map((roadLine) => ({
                         ...roadLine,
-                        top: roadLine.top + (window.innerWidth <= 768 ? 2 : 1),
+                        top: roadLine.top + speed,
                     }))
-                    .filter((roadLine) => roadLine.top <= 110) // Remove road lines when they go below 110vh
+                    .filter((roadLine) => roadLine.top <= 110)
             );
         }, 20);
-    
+
         return () => clearInterval(obstacleMoveInterval);
-    }, []);
+    }, [speed]);
 
     useEffect(() => {
         let animationFrameId;
