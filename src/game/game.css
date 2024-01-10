@@ -39,9 +39,9 @@
 .railing {
     position: absolute;
     top: 0;
-    width: 10px; /* Adjust the width of the railings as needed */
+    width: 10px; 
     height: 100%;
-    background-color: white; /* Set the color of the railings */
+    background-color: white; 
 }
 
 .railing.left {
@@ -52,12 +52,29 @@
     right: 0;
 }
 .car {
-    width: 30px; 
-    height: 50px; 
+    width: 50px; 
+    height:70px; 
     background-color: red;
     position: absolute;
     bottom: 0;
     left: 50%;
+    transform: translateX(-50%); 
+}
+.obstacle {
+    width: 60px; 
+    height: 60px; 
+    background-color: blue;
+    position: absolute;
     transform: translateX(-50%);
-    transition: left 0.5s ease; /* Add a transition property for smooth movement */
+}
+
+@media screen and (max-width: 150px) {
+    .obstacle {
+        width: 20px; 
+        height: 20px; 
+    }
+    .car {
+        width: 30px; 
+        height: 50px; 
+    }
 }
