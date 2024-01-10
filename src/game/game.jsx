@@ -10,6 +10,7 @@ export default function GameWindow() {
     const [obstacles, setObstacles] = useState([]);
     const [gamePaused, setGamePaused] = useState(true);
     const [roadLines, setRoadLines] = useState([]);
+    const [speed, setSpeed] = useState(1);
     
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -32,6 +33,14 @@ export default function GameWindow() {
     }, []);
 
     useEffect(() => {
+        const speedAccelerationInterval = setInterval(() => {
+            setSpeed((prevSpeed) => prevSpeed + 0.2); 
+        }, 10000);
+
+        return () => clearInterval(speedAccelerationInterval);
+    }, [speed]);
+
+    useEffect(() => {
         
         if (menuHidden && !gamePaused) {
             const obstacleInterval = setInterval(() => {
@@ -44,22 +53,27 @@ export default function GameWindow() {
                 };
 
                 setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
+            }, 1500);
 
+            const roadLineInterval = setInterval(() => {
                 const newRoadLine = {
                     id: Date.now(),
                     top: -10,
                 };
 
                 setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
-            }, 1500);
+            }, 1000); 
 
-            return () => clearInterval(obstacleInterval);
+            return () => {
+                clearInterval(obstacleInterval);
+                clearInterval(roadLineInterval);
+            };
         }
-    }, [menuHidden,gamePaused]);
+    }, [menuHidden,gamePaused, speed]);
 
     useEffect(() => {
         if (gamePaused) {
-            return; // Не обновлять препятствия, если игра приостановлена
+            return; 
         }
     
         const obstacleMoveInterval = setInterval(() => {
@@ -67,23 +81,23 @@ export default function GameWindow() {
                 prevObstacles
                     .map((obstacle) => ({
                         ...obstacle,
-                        top: obstacle.top + (window.innerWidth <= 768 ? 2 : 1),
+                        top: obstacle.top + speed,
                     }))
-                    .filter((obstacle) => obstacle.top <= 110) // Remove obstacles when they go below 110vh
+                    .filter((obstacle) => obstacle.top <= 110)
             );
-    
+
             setRoadLines((prevRoadLines) =>
                 prevRoadLines
                     .map((roadLine) => ({
                         ...roadLine,
-                        top: roadLine.top + (window.innerWidth <= 768 ? 2 : 1),
+                        top: roadLine.top + speed,
                     }))
-                    .filter((roadLine) => roadLine.top <= 110) // Remove road lines when they go below 110vh
+                    .filter((roadLine) => roadLine.top <= 110)
                 );
             }, 20);
-        
+
             return () => clearInterval(obstacleMoveInterval);
-        }, [gamePaused]);
+        }, [speed, gamePaused]);
     
 
     useEffect(() => {
@@ -143,6 +157,7 @@ export default function GameWindow() {
                             }}
                         ></div>
                     ))}
+
                     {obstacles.map((obstacle) => (
                         <div
                             key={obstacle.id}
