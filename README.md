@@ -1,11 +1,3 @@
-# Сделать дорогу больше(для мобильного режима
-
-# Скорость препятствий
-
-# Ускорение автомобиля
-
-# Good Design :)
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -30,14 +30,15 @@ export default function Game() {
     useEffect(() => {
         if (menuHidden) {
             const obstacleInterval = setInterval(() => {
-                setObstacles((prevObstacles) => [
-                    ...prevObstacles,
-                    {
-                        id: Date.now(),
-                        left: Math.random() * 80 + 10,
-                        top: 0,
-                    },
-                ]);
+                const newObstacle = {
+                    id: Date.now(),
+                    left: Math.random() * 80 + 10,
+                    top: 0,
+                    type: Math.random() < 0.5 ? 'blue' : 'green', // Randomly choose blue or green
+                    size: Math.random() < 0.5 ? 'small' : 'large', // Randomly choose small or large
+                };
+
+                setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
             }, 1500);
 
             return () => clearInterval(obstacleInterval);
@@ -104,7 +105,7 @@ export default function Game() {
                     {obstacles.map((obstacle) => (
                         <div
                             key={obstacle.id}
-                            className='obstacle'
+                            className={`obstacle ${obstacle.type} ${obstacle.size}`}
                             style={{
                                 left: `${obstacle.left}%`,
                                 top: `${obstacle.top}vh`,

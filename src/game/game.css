@@ -67,11 +67,31 @@
     position: absolute;
     transform: translateX(-50%);
 }
+.obstacle.green {
+    background-color: sienna;
+    width:60px ;
+    height:90px;
+}
+
+.obstacle.large {
+    background-color: skyblue;
+    width: 80px;
+    height: 140px;
+}
 
 @media screen and (max-width: 150px) {
     .obstacle {
         width: 20px; 
         height: 20px; 
+    }
+    .obstacle.green {
+        width:30px ;
+        height:60px;
+    }
+    
+    .obstacle.large {
+        width: 60px;
+        height: 120px;
     }
     .car {
         width: 30px; 
