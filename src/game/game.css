@@ -56,7 +56,7 @@
     height:70px; 
     background-color: red;
     position: absolute;
-    bottom: 0;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%); 
 }
@@ -98,3 +98,13 @@
         height: 50px; 
     }
 }
+
+.road-line {
+    position: absolute;
+    width: 15px;
+    height: 80px;
+    background-color: white;
+    left: 50%;
+    transform: translateX(-1px);
+}
+

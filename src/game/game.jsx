@@ -6,6 +6,7 @@ export default function Game() {
     const [carPosition, setCarPosition] = useState(50);
     const [direction, setDirection] = useState(null);
     const [obstacles, setObstacles] = useState([]);
+    const [roadLines, setRoadLines] = useState([]);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -33,12 +34,19 @@ export default function Game() {
                 const newObstacle = {
                     id: Date.now(),
                     left: Math.random() * 80 + 10,
-                    top: 0,
-                    type: Math.random() < 0.5 ? 'blue' : 'green', // Randomly choose blue or green
-                    size: Math.random() < 0.5 ? 'small' : 'large', // Randomly choose small or large
+                    top: -15, 
+                    type: Math.random() < 0.5 ? 'blue' : 'green',
+                    size: Math.random() < 0.5 ? 'small' : 'large',
                 };
 
                 setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
+
+                const newRoadLine = {
+                    id: Date.now(),
+                    top: -10,
+                };
+
+                setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
             }, 1500);
 
             return () => clearInterval(obstacleInterval);
@@ -48,13 +56,24 @@ export default function Game() {
     useEffect(() => {
         const obstacleMoveInterval = setInterval(() => {
             setObstacles((prevObstacles) =>
-                prevObstacles.map((obstacle) => ({
-                    ...obstacle,
-                    top: obstacle.top + (window.innerWidth <= 768 ? 2 : 1),
-                }))
+                prevObstacles
+                    .map((obstacle) => ({
+                        ...obstacle,
+                        top: obstacle.top + (window.innerWidth <= 768 ? 2 : 1),
+                    }))
+                    .filter((obstacle) => obstacle.top <= 110) // Remove obstacles when they go below 110vh
+            );
+    
+            setRoadLines((prevRoadLines) =>
+                prevRoadLines
+                    .map((roadLine) => ({
+                        ...roadLine,
+                        top: roadLine.top + (window.innerWidth <= 768 ? 2 : 1),
+                    }))
+                    .filter((roadLine) => roadLine.top <= 110) // Remove road lines when they go below 110vh
             );
         }, 20);
-
+    
         return () => clearInterval(obstacleMoveInterval);
     }, []);
 
@@ -86,7 +105,6 @@ export default function Game() {
     function startGame() {
         setMenuHidden(true);
     }
-    
 
     return (
         <div>
@@ -101,6 +119,16 @@ export default function Game() {
                     <div className='railing left'></div>
                     <div className='railing right'></div>
                     <div className='car' style={{ left: `${carPosition}%` }}></div>
+
+                    {roadLines.map((roadLine) => (
+                        <div
+                            key={roadLine.id}
+                            className='road-line'
+                            style={{
+                                top: `${roadLine.top}vh`,
+                            }}
+                        ></div>
+                    ))}
 
                     {obstacles.map((obstacle) => (
                         <div
