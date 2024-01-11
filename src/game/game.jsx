@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './game.css';
 import start from './start.png';
 import stop from './stop.png';
-
+import CarsMenu from './CarsMenu/carsMenu';
 export default function GameWindow() {
     const [menuHidden, setMenuHidden] = useState(false);
     const [carPosition, setCarPosition] = useState(50);
@@ -55,7 +55,7 @@ export default function GameWindow() {
                 setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
             }, 1500);
 
-            const roadLineInterval = setInterval(() => {
+                const roadLineInterval = setInterval(() => {
                 const newRoadLine = {
                     id: Date.now(),
                     top: -10,
@@ -137,6 +137,7 @@ export default function GameWindow() {
         <div>
             <div className={`menu ${menuHidden && 'hidden'}`}>
                 <h1>ГОНКИ</h1>
+                <CarsMenu/>
                 <button className='start-btn' onClick={startGame}>
                     START!
                 </button>
@@ -157,7 +158,6 @@ export default function GameWindow() {
                             }}
                         ></div>
                     ))}
-
                     {obstacles.map((obstacle) => (
                         <div
                             key={obstacle.id}
