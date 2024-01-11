@@ -14,6 +14,8 @@ export default function GameWindow() {
     const [roadLines, setRoadLines] = useState([]);
     const [menuVisible, setMenuVisible] = useState(false);
     const [carImage, setCarImage] = useState(audiRs6);
+    const [speed, setSpeed] = useState(1);
+    const [isLose,setLose] = useState(false);
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -33,6 +35,16 @@ export default function GameWindow() {
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, []);
+
+    useEffect(() => {
+        if (gamePaused) {
+            return; // Не обновлять препятствия, если игра приостановлена
+        }
+        const speedAccelerationInterval = setInterval(() => {
+            setSpeed((prevSpeed) => prevSpeed + 0.2); 
+        }, 10000);
+        return () => clearInterval(speedAccelerationInterval);
+    }, [speed,gamePaused]);
 
     useEffect(() => {
         
@@ -70,28 +82,59 @@ export default function GameWindow() {
                 prevObstacles
                     .map((obstacle) => ({
                         ...obstacle,
-                        top: obstacle.top + (window.innerWidth <= 768 ? 2 : 1),
+                        top: obstacle.top + speed,
                     }))
-                    .filter((obstacle) => obstacle.top <= 110) // Remove obstacles when they go below 110vh
+                    .filter((obstacle) => obstacle.top <= 110)
             );
-    
+
             setRoadLines((prevRoadLines) =>
                 prevRoadLines
                     .map((roadLine) => ({
                         ...roadLine,
-                        top: roadLine.top + (window.innerWidth <= 768 ? 2 : 1),
+                        top: roadLine.top + speed,
                     }))
-                    .filter((roadLine) => roadLine.top <= 110) // Remove road lines when they go below 110vh
+                    .filter((roadLine) => roadLine.top <= 110)
                 );
             }, 20);
-        
-            return () => clearInterval(obstacleMoveInterval);
-        }, [gamePaused]);
-    
 
+            return () => clearInterval(obstacleMoveInterval);
+        }, [speed, gamePaused]);
+    
+        useEffect(() => {
+            const checkCollisions = () => {
+                const carWidth = 10; 
+                const carHeight = 20; 
+
+                const carLeft = carPosition;
+                const carTop = 85; 
+        
+                obstacles.forEach((obstacle) => {
+                    const obstacleLeft = obstacle.left;
+                    const obstacleTop = obstacle.top;
+        
+                    const obstacleWidth = obstacle.size === 'small' ? 5 : 10;
+                    const obstacleHeight = obstacle.size === 'small' ? 10 : 20;
+        
+                    if (
+                        carLeft < obstacleLeft + obstacleWidth &&
+                        carLeft + carWidth > obstacleLeft &&
+                        carTop < obstacleTop + obstacleHeight &&
+                        carTop + carHeight > obstacleTop
+                    ) {
+                        console.log('Столкновение!');
+                        setGamePaused(true);
+                        setObstacles([]);
+                        setSpeed(1);
+                        setLose(true)
+                    }
+                });
+            };
+            const collisionCheckInterval = setInterval(checkCollisions, 20);
+            return () => clearInterval(collisionCheckInterval);
+        }, [carPosition, obstacles]);
+        
     useEffect(() => {
         let animationFrameId;
-
         const moveCar = () => {
             const maxPosition = 95;
             const minPosition = 5;
@@ -131,6 +174,10 @@ export default function GameWindow() {
     function changeCar(newCarImage) {
         setCarImage(newCarImage);
     }
+    function restart(){
+        setLose(false)
+        setGamePaused(false)
+    }
     return (
         <div>
             <div className={`menu ${menuHidden && 'hidden'}`}>
@@ -161,7 +208,10 @@ export default function GameWindow() {
                     <div className='railing right'></div>
                     <div className='car' style={{ left: `${carPosition}%`, backgroundImage: `url(${carImage})` }}></div>
                     <img className='start-stop' src={gamePaused ? start : stop} alt="" onClick={toggleGame}/>
-
+                    <div className={`lose ${!isLose && 'hidden'}`}>
+                        <h1>РАЗМОТАЛСЯ НЫФЛИА</h1>
+                        <button className='restart start-btn' onClick={restart}>Заново</button>
+                    </div>
                     {roadLines.map((roadLine) => (
                         <div
                             key={roadLine.id}
