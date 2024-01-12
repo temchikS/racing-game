@@ -7,7 +7,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: rgb(125, 191, 125);
+    background-image: url('https://top-fon.com/uploads/posts/2023-01/1674708145_top-fon-com-p-fon-gonki-dlya-prezentatsii-69.jpg');
 }
 .start-btn{
     border: none;
@@ -28,6 +28,11 @@
     width: 100%;
     height: 100%;
     justify-content: center;
+}
+h1{
+    color: gold;
+    font-size: 50px;
+    -webkit-text-stroke: 2px black;
 }
 .road {
     position: relative;
@@ -60,6 +65,7 @@
     transform: translateX(-1px);
     z-index: 1; 
 }
+
 .car {
     width: 50px; 
     height: 100px; 
@@ -69,6 +75,7 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%); 
+    z-index: 2;
 }
 .obstacle {
     width: 60px; 
@@ -96,7 +103,83 @@
     width: 100px;
     cursor: pointer;
 }
+/* выбор машины */
+.burger{
+    border: none;
+    border-radius: 13px;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 15px 50px;
+    transition: 0.2s;
+   background-color: rgb(73, 158, 192);
+}
 
+.burger:hover{
+    transform: scale(1.2);
+}
+.carsMenu{
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    left: -100vw;
+    background-color: rgb(124, 219, 226);
+    -webkit-box-shadow: 0px 0px 18px 0px rgba(26, 123, 197, 0.966);
+    -moz-box-shadow: 0px 0px 18px 0px rgba(40, 139, 214, 0.815);
+    box-shadow: 0px 0px 18px 0px rgba(46, 127, 189, 0.2);
+    transition: 0.5s;
+}
+.close-btn{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    background-image: url(close.png);
+    background-size: 100% 100%;
+    background-color: red;
+}
+.close-btn:hover{
+    background-color:rgb(35, 170, 35);
+}
+.carsMenu.visible {
+    left: 0;
+}
+.catalog{
+    display: flex;
+    gap: 20px;
+    margin: 20px;
+}
+.card{
+    width: 15vw;
+    cursor: pointer;
+    height: 40vh;
+    border: 2px solid black;
+    border-radius: 10%;
+    transition: 0.2s;
+    color: yellow;
+    background-color: rgb(136, 141, 139);
+}
+.card h2{
+    margin: 0;
+}
+.card:hover{
+    transform: scale(1.1);
+}
+.card img{
+    margin-top: 10px;
+    height: 60%;
+}
+.chosen{
+    background-color: rgb(109, 81, 141);
+}
+.chosen::after{
+    content: "Сейчас выбрано";
+}
 @media screen and (max-width: 150px) {
     .obstacle {
         width: 20px; 
