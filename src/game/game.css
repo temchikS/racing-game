@@ -23,10 +23,7 @@
 .game {
     display: flex;
     position: fixed;
-    background-image: url('grass.jpg');
-    background-repeat: repeat-y;
-    background-repeat: repeat-x;
-    background-size: 50%;
+    background-color: rgb(68, 114, 68);
     top: 0;
     width: 100%;
     height: 100%;
@@ -42,14 +39,23 @@
     background-size: auto 100%;
 }
 
+.grass {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('grass.jpg');
+    background-repeat: repeat-x repeat-y;;
+    background-size: auto 100%;
+}
+
 .railing {
     position: absolute;
     top: 0;
-    width: 10px; 
+    width: 10px;
     height: 100%;
     background-image: url('concrete.jpg');
     background-repeat: repeat-y;
-    background-color: white; 
+    background-color: white;
     background-size: 1000%;
     z-index: 0;
 }
@@ -61,6 +67,7 @@
 .railing.right {
     right: 0;
 }
+
 .road-line {
     position: absolute;
     width: 15px;

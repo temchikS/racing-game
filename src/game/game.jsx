@@ -22,6 +22,8 @@ export default function GameWindow() {
     const [isMouseDownLeft, setIsMouseDownLeft] = useState(false);
     const [isMouseDownRight, setIsMouseDownRight] = useState(false);
     const movementSpeed = 0.02;
+    const [backgroundPosition, setBackgroundPosition] = useState(0);
+    const backgroundHeight = 100;
     
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -104,28 +106,42 @@ export default function GameWindow() {
     }, [speed,gamePaused]);
 
     useEffect(() => {
-    if (menuHidden && !gamePaused) {
-        const obstacleInterval = setInterval(() => {
-            const newObstacle = {
-                id: Date.now(),
-                left: Math.random() * 80 + 10,
-                top: -40,
-                type: Math.random() < 0.33 ? 'blue' : Math.random() < 0.66 ? 'green' : 'large',
-            };
+        if (menuHidden && !gamePaused) {
+            const obstacleInterval = setInterval(() => {
+                const newObstacle = {
+                    id: Date.now(),
+                    left: Math.random() * 80 + 10,
+                    top: -40,
+                    type: Math.random() < 0.33 ? 'blue' : Math.random() < 0.66 ? 'green' : 'large',
+                };
 
-            setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
+                setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
 
-            const newRoadLine = {
-                id: Date.now(),
-                top: -10,
-            };
+                const newRoadLine = {
+                    id: Date.now(),
+                    top: -10,
+                };
 
-            setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
-        }, 1000); 
+                setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
+            }, 1000); 
 
-        return () => clearInterval(obstacleInterval);
-    }
-}, [menuHidden, gamePaused]);
+            return () => clearInterval(obstacleInterval);
+        }
+    }, [menuHidden, gamePaused]);
+
+    useEffect(() => {
+        if (gamePaused) {
+            return;
+        }
+    
+        const backgroundMoveInterval = setInterval(() => {
+            setBackgroundPosition((prevPosition) => (prevPosition + speed) % backgroundHeight);
+        }, 20);
+    
+        return () => {
+            clearInterval(backgroundMoveInterval);
+        };
+    }, [speed, gamePaused]);
 
     useEffect(() => {
         if (gamePaused) {
@@ -212,6 +228,22 @@ export default function GameWindow() {
         };
     }, [direction,gamePaused]);
 
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setGamePaused(true);
+            } else {
+                setGamePaused(false);
+            }
+        };
+    
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [gamePaused]);
+
     function getObstacleImage(type) {
         switch (type) {
             case 'blue':
@@ -275,7 +307,8 @@ export default function GameWindow() {
                 </button>
             </div>
             <div className={`game ${!menuHidden && 'hidden'}`}>
-                <div className='road'>
+            <div className='grass' style={{ backgroundPosition: `0 ${backgroundPosition}vh` }}></div>
+                <div className='road' style={{ backgroundPosition: `0 ${backgroundPosition}vh` }}>
                     <div className='railing left'></div>
                     <div className='railing right'></div>
                     <div className='car' style={{ left: `${carPosition}%`, backgroundImage: `url(${carImage})` }}></div>
