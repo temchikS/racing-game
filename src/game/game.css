@@ -193,22 +193,32 @@
     content: "Сейчас выбрано";
 }
 @media screen and (max-width: 150px) {
+    .road {
+        width: 80vw;
+    }
+
+    .grass, .railing, .road-line {
+        width: 100%;
+    }
+
+    .car {
+        width: 30px;
+        height: 60px;
+    }
+
     .obstacle {
-        width: 20px; 
-        height: 20px; 
+        width: 20px;
+        height: 40px;
     }
+
     .obstacle.green {
-        width:30px ;
-        height:60px;
+        width: 30px;
+        height: 60px;
     }
-    
+
     .obstacle.large {
         width: 40px;
-        height: 80px;
-    }
-    .car {
-        width: 30px; 
-        height: 50px; 
+        height: 120px;
     }
 }
 

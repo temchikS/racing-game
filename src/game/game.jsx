@@ -21,7 +21,7 @@ export default function GameWindow() {
     const [isLose,setLose] = useState(false);
     const [isMouseDownLeft, setIsMouseDownLeft] = useState(false);
     const [isMouseDownRight, setIsMouseDownRight] = useState(false);
-    const movementSpeed = 0.02;
+    const movementSpeed = 0.15;
     const [backgroundPosition, setBackgroundPosition] = useState(0);
     const backgroundHeight = 100;
     
@@ -46,28 +46,28 @@ export default function GameWindow() {
     }, []);
 
     useEffect(() => {
-        const handleMouseDown = (event) => {
-            const mouseClickX = event.clientX;
+        const handleTouchStart = (event) => {
+            const touchX = event.touches[0].clientX;
             const screenWidth = window.innerWidth;
 
-            if (mouseClickX < screenWidth / 2) {
+            if (touchX < screenWidth / 2) {
                 setIsMouseDownLeft(true);
             } else {
                 setIsMouseDownRight(true);
             }
         };
 
-        const handleMouseUp = () => {
+        const handleTouchEnd = () => {
             setIsMouseDownLeft(false);
             setIsMouseDownRight(false);
         };
 
-        document.addEventListener('mousedown', handleMouseDown);
-        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchstart', handleTouchStart);
+        document.addEventListener('touchend', handleTouchEnd);
 
         return () => {
-            document.removeEventListener('mousedown', handleMouseDown);
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchend', handleTouchEnd);
         };
     }, []);
 
