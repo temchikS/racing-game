@@ -170,8 +170,6 @@ export default function GameWindow() {
 
             return () => clearInterval(obstacleMoveInterval);
         }, [speed, gamePaused]);
-    
-        // ... (previous code)
 
         useEffect(() => {
             const checkCollisions = () => {
@@ -230,17 +228,21 @@ export default function GameWindow() {
 
             const createOrUpdateHitbox = (id, left, top, width, height) => {
                 let hitbox = document.getElementById(id);
-
+            
                 if (!hitbox) {
                     hitbox = document.createElement('div');
                     hitbox.id = id;
                     hitbox.style.position = 'absolute';
                     hitbox.style.border = '2px solid red';
+                    hitbox.style.transform = 'translate(-95%, -50%)'; // Center the hitbox
                     document.querySelector('.road').appendChild(hitbox);
                 }
-
-                hitbox.style.left = `${left}%`;
-                hitbox.style.top = `${top}vh`;
+            
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+            
+                hitbox.style.left = `${centerX}%`;
+                hitbox.style.top = `${centerY}vh`;
                 hitbox.style.width = `${width}%`;
                 hitbox.style.height = `${height}vh`;
             };
