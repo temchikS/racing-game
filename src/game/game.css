@@ -20,10 +20,10 @@
 .start-btn:hover{
     transform: scale(1.2);
 }
-.game{
+.game {
     display: flex;
     position: fixed;
-    background-color: rgb(125, 191, 125);
+    background-color: rgb(68, 114, 68);
     top: 0;
     width: 100%;
     height: 100%;
@@ -33,15 +33,32 @@
     position: relative;
     width: 40vw;
     height: 100vh;
+    /* background-image: url('asphalt.jpg');
+    background-repeat: repeat-y; */
     background-color: rgb(98, 98, 98);
+    /* background-size: auto 100%; */
+}
+
+.grass {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* background-image: url('grass.jpg');
+    background-repeat: repeat-x repeat-y;;
+    background-size: auto 100%; */
+    background-color: green;
 }
 
 .railing {
     position: absolute;
     top: 0;
-    width: 10px; 
+    width: 10px;
     height: 100%;
-    background-color: white; 
+    background-image: url('concrete.jpg');
+    background-repeat: repeat-y;
+    background-color: white;
+    background-size: 1000%;
+    z-index: 0;
 }
 
 .railing.left {
@@ -51,10 +68,12 @@
 .railing.right {
     right: 0;
 }
+
 .road-line {
     position: absolute;
     width: 15px;
     height: 80px;
+    background-image: url('concrete.jpg');
     background-color: white;
     left: 50%;
     transform: translateX(-1px);
@@ -62,8 +81,8 @@
 }
 
 .car {
-    width: 50px; 
-    height: 100px; 
+    width: 10vh; 
+    height: 15vh; 
     background-image: url(audi-rs6.png);
     background-size: 100% 100%;
     position: absolute;
@@ -73,23 +92,27 @@
     z-index: 2;
 }
 .obstacle {
-    width: 60px; 
-    height: 60px; 
-    background-color: blue;
+    background-image: url('./bike.png');
+    background-size: 100% 100%;
+    width: 5vh; 
+    height: 10vh;
     position: absolute;
     transform: translateX(-50%);
     z-index: 2;
 }
 .obstacle.green {
-    background-color: sienna;
-    width:60px ;
-    height:90px;
+    background-image: url('./vrag.png');
+    width: 10vh; 
+    height: 15vh;
+    z-index: 2;
 }
 
 .obstacle.large {
-    background-color: skyblue;
-    width: 80px;
-    height: 140px;
+    background-image: url('./bus.png');
+    background-size: 100% 100%;
+    width: 12vh; 
+    height: 25vh;
+    z-index: 2;
 }
 .start-stop{
     position: fixed;
@@ -171,21 +194,51 @@
     content: "Сейчас выбрано";
 }
 @media screen and (max-width: 150px) {
+    .road {
+        width: 80vw;
+    }
+
+    .grass, .railing, .road-line {
+        width: 100%;
+    }
+
+    .car {
+        width: 30px;
+        height: 60px;
+    }
+
     .obstacle {
-        width: 20px; 
-        height: 20px; 
+        width: 20px;
+        height: 40px;
     }
+
     .obstacle.green {
-        width:30px ;
-        height:60px;
+        width: 30px;
+        height: 60px;
     }
-    
+
     .obstacle.large {
-        width: 60px;
+        width: 40px;
         height: 120px;
     }
-    .car {
-        width: 30px; 
-        height: 50px; 
-    }
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 3; 
+}
+
+.popup h1 {
+    margin: 0;
+}
+
+.popup button {
+    margin-top: 10px;
 }

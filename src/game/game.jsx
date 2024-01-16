@@ -4,6 +4,9 @@ import audiRs6 from './audi-rs6.png';
 import tachka from './tachka.png';
 import start from './start.png';
 import stop from './stop.png';
+import obstacleBlueImage from './bike.png';
+import obstacleGreenImage from './vrag.png';
+import obstacleLargeImage from './bus.png';
 
 export default function GameWindow() {
     const [menuHidden, setMenuHidden] = useState(false);
@@ -16,6 +19,12 @@ export default function GameWindow() {
     const [carImage, setCarImage] = useState(audiRs6);
     const [speed, setSpeed] = useState(1);
     const [isLose,setLose] = useState(false);
+    const [isMouseDownLeft, setIsMouseDownLeft] = useState(false);
+    const [isMouseDownRight, setIsMouseDownRight] = useState(false);
+    const movementSpeed = 0.15;
+    const [backgroundPosition, setBackgroundPosition] = useState(0);
+    const backgroundHeight = 100;
+    
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -37,8 +46,58 @@ export default function GameWindow() {
     }, []);
 
     useEffect(() => {
+        const handleTouchStart = (event) => {
+            const touchX = event.touches[0].clientX;
+            const screenWidth = window.innerWidth;
+
+            if (touchX < screenWidth / 2) {
+                setIsMouseDownLeft(true);
+            } else {
+                setIsMouseDownRight(true);
+            }
+        };
+
+        const handleTouchEnd = () => {
+            setIsMouseDownLeft(false);
+            setIsMouseDownRight(false);
+        };
+
+        document.addEventListener('touchstart', handleTouchStart);
+        document.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
+
+    useEffect(() => {
+        let animationFrameId;
+        const moveCar = () => {
+            const maxPosition = 95;
+            const minPosition = 5;
+
+            if (isMouseDownLeft && carPosition > minPosition) {
+                setCarPosition((prevPosition) => Math.max(prevPosition - movementSpeed, minPosition));
+            } else if (isMouseDownRight && carPosition < maxPosition) {
+                setCarPosition((prevPosition) => Math.min(prevPosition + movementSpeed, maxPosition));
+            }
+
+            animationFrameId = requestAnimationFrame(moveCar);
+        };
+
+        if ((isMouseDownLeft || isMouseDownRight) && !gamePaused) {
+            moveCar();
+        }
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [isMouseDownLeft, isMouseDownRight, carPosition, gamePaused]);
+
+    useEffect(() => {
         if (gamePaused) {
-            return; // Не обновлять препятствия, если игра приостановлена
+            return; 
         }
         const speedAccelerationInterval = setInterval(() => {
             setSpeed((prevSpeed) => prevSpeed + 0.2); 
@@ -47,15 +106,13 @@ export default function GameWindow() {
     }, [speed,gamePaused]);
 
     useEffect(() => {
-        
         if (menuHidden && !gamePaused) {
             const obstacleInterval = setInterval(() => {
                 const newObstacle = {
                     id: Date.now(),
                     left: Math.random() * 80 + 10,
-                    top: -15, 
-                    type: Math.random() < 0.5 ? 'blue' : 'green',
-                    size: Math.random() < 0.5 ? 'small' : 'large',
+                    top: -40,
+                    type: Math.random() < 0.33 ? 'blue' : Math.random() < 0.66 ? 'green' : 'large',
                 };
 
                 setObstacles((prevObstacles) => [...prevObstacles, newObstacle]);
@@ -66,15 +123,29 @@ export default function GameWindow() {
                 };
 
                 setRoadLines((prevRoadLines) => [...prevRoadLines, newRoadLine]);
-            }, 1500);
+            }, 1000); 
 
             return () => clearInterval(obstacleInterval);
         }
-    }, [menuHidden,gamePaused]);
+    }, [menuHidden, gamePaused]);
 
     useEffect(() => {
         if (gamePaused) {
-            return; // Не обновлять препятствия, если игра приостановлена
+            return;
+        }
+    
+        const backgroundMoveInterval = setInterval(() => {
+            setBackgroundPosition((prevPosition) => (prevPosition + speed) % backgroundHeight);
+        }, 20);
+    
+        return () => {
+            clearInterval(backgroundMoveInterval);
+        };
+    }, [speed, gamePaused]);
+
+    useEffect(() => {
+        if (gamePaused) {
+            return; 
         }
     
         const obstacleMoveInterval = setInterval(() => {
@@ -102,42 +173,65 @@ export default function GameWindow() {
     
         useEffect(() => {
             const checkCollisions = () => {
-                const carWidth = 10; 
-                const carHeight = 20; 
+                const carWidth = 10;
+                const carHeight = 15;
+                
 
                 const carLeft = carPosition;
-                const carTop = 85; 
-        
+                
+                // console.log(carLeft,carRight)
+                
+                const carTop = 85;
+            
                 obstacles.forEach((obstacle) => {
                     const obstacleLeft = obstacle.left;
                     const obstacleTop = obstacle.top;
-        
-                    const obstacleWidth = obstacle.size === 'small' ? 5 : 10;
-                    const obstacleHeight = obstacle.size === 'small' ? 10 : 20;
-        
+                    // const obstacleWidth = 10;
+                    // const obstacleHeight = 15;
+                    let obstacleWidth, obstacleHeight;
+
+                    if (obstacle.type === 'large') {
+                        obstacleWidth = 12 
+                        obstacleHeight = 25
+                    } else if (obstacle.type === 'green') {
+                        obstacleWidth = 10
+                        obstacleHeight = 15
+                    } else {
+                        obstacleWidth = 5
+                        obstacleHeight = 10
+                    }
+            
+                    const carRight = carLeft + carWidth;
+                    const carBottom = carTop + carHeight;
+                    const obstacleRight = obstacleLeft + obstacleWidth;
+                    const obstacleBottom = obstacleTop + obstacleHeight;
+                    // console.log("car :", carLeft,carRight,carTop,carBottom," obst:", obstacle.type,obstacleLeft,obstacleRight,obstacleTop,obstacleBottom)
+                    
                     if (
-                        carLeft < obstacleLeft + obstacleWidth &&
-                        carLeft + carWidth > obstacleLeft &&
-                        carTop < obstacleTop + obstacleHeight &&
-                        carTop + carHeight > obstacleTop
+                        carLeft < obstacleRight &&
+                        carRight > obstacleLeft &&
+                        carTop < obstacleBottom &&
+                        carBottom > obstacleTop
                     ) {
-                        console.log('Столкновение!');
+                        console.log('Collision!');
+                        
                         setGamePaused(true);
                         setObstacles([]);
                         setSpeed(1);
-                        setLose(true)
+                        setLose(true);
                     }
                 });
             };
-            const collisionCheckInterval = setInterval(checkCollisions, 20);
+            
+            const collisionCheckInterval = setInterval(checkCollisions, 0);
             return () => clearInterval(collisionCheckInterval);
         }, [carPosition, obstacles]);
         
     useEffect(() => {
         let animationFrameId;
         const moveCar = () => {
-            const maxPosition = 95;
-            const minPosition = 5;
+            const maxPosition = 100;
+            const minPosition = 0;
 
             if (direction === 'ArrowLeft') {
                 setCarPosition((prevPosition) => Math.max(prevPosition - 1, minPosition));
@@ -157,6 +251,35 @@ export default function GameWindow() {
         };
     }, [direction,gamePaused]);
 
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setGamePaused(true);
+            } else {
+                setGamePaused(false);
+            }
+        };
+    
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [gamePaused]);
+
+    function getObstacleImage(type) {
+        switch (type) {
+            case 'blue':
+                return `url(${obstacleBlueImage})`;
+            case 'green':
+                return `url(${obstacleGreenImage})`;
+            case 'large':
+                return `url(${obstacleLargeImage})`;
+            default:
+                return '';
+        }
+    }
+
     function startGame() {
         setMenuHidden(true);
         setGamePaused(false);
@@ -174,9 +297,13 @@ export default function GameWindow() {
     function changeCar(newCarImage) {
         setCarImage(newCarImage);
     }
-    function restart(){
-        setLose(false)
-        setGamePaused(false)
+    function restart() {
+        setLose(false);
+        setGamePaused(true); 
+        setMenuHidden(true); 
+        setObstacles([]); 
+        setSpeed(1); 
+        setGamePaused(false);
     }
     return (
         <div>
@@ -203,14 +330,17 @@ export default function GameWindow() {
                 </button>
             </div>
             <div className={`game ${!menuHidden && 'hidden'}`}>
-                <div className='road'>
+            <div className='grass' style={{ backgroundPosition: `0 ${backgroundPosition}vh` }}></div>
+                <div className='road' style={{ backgroundPosition: `0 ${backgroundPosition}vh` }}>
                     <div className='railing left'></div>
                     <div className='railing right'></div>
                     <div className='car' style={{ left: `${carPosition}%`, backgroundImage: `url(${carImage})` }}></div>
                     <img className='start-stop' src={gamePaused ? start : stop} alt="" onClick={toggleGame}/>
                     <div className={`lose ${!isLose && 'hidden'}`}>
+                    <div className="popup">
                         <h1>РАЗМОТАЛСЯ НЫФЛИА</h1>
                         <button className='restart start-btn' onClick={restart}>Заново</button>
+                    </div>
                     </div>
                     {roadLines.map((roadLine) => (
                         <div
@@ -224,10 +354,11 @@ export default function GameWindow() {
                     {obstacles.map((obstacle) => (
                         <div
                             key={obstacle.id}
-                            className={`obstacle ${obstacle.type} ${obstacle.size}`}
+                            className={`obstacle ${obstacle.type}`}
                             style={{
                                 left: `${obstacle.left}%`,
                                 top: `${obstacle.top}vh`,
+                                backgroundImage: getObstacleImage(obstacle.type),
                             }}
                         ></div>
                     ))}
