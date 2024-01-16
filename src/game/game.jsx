@@ -200,10 +200,6 @@ export default function GameWindow() {
                     const obstacleRight = obstacleLeft + obstacleWidth;
                     const obstacleBottom = obstacleTop + obstacleHeight;
 
-                    // Create or update hitbox divs
-                    createOrUpdateHitbox('car-hitbox', carLeft, carTop, carWidth, carHeight);
-                    createOrUpdateHitbox(`obstacle-hitbox-${obstacle.id}`, obstacleLeft, obstacleTop, obstacleWidth, obstacleHeight);
-
                     if (
                         carLeft < obstacleRight &&
                         carRight > obstacleLeft &&
@@ -211,49 +207,18 @@ export default function GameWindow() {
                         carBottom > obstacleTop
                     ) {
                         console.log('Collision!');
-
                         setGamePaused(true);
                         setObstacles([]);
                         setSpeed(1);
                         setLose(true);
-                        removeHitboxes(); // Remove hitboxes on collision
                     }
                 });
             };
-
-            const removeHitboxes = () => {
-                document.querySelectorAll('[id^="car-hitbox"]').forEach((hitbox) => hitbox.remove());
-                document.querySelectorAll('[id^="obstacle-hitbox"]').forEach((hitbox) => hitbox.remove());
-            };
-
-            const createOrUpdateHitbox = (id, left, top, width, height) => {
-                let hitbox = document.getElementById(id);
-            
-                if (!hitbox) {
-                    hitbox = document.createElement('div');
-                    hitbox.id = id;
-                    hitbox.style.position = 'absolute';
-                    hitbox.style.border = '2px solid red';
-                    hitbox.style.transform = 'translate(-95%, -50%)'; // Center the hitbox
-                    document.querySelector('.road').appendChild(hitbox);
-                }
-            
-                const centerX = left + width / 2;
-                const centerY = top + height / 2;
-            
-                hitbox.style.left = `${centerX}%`;
-                hitbox.style.top = `${centerY}vh`;
-                hitbox.style.width = `${width}%`;
-                hitbox.style.height = `${height}vh`;
-            };
-
             const collisionCheckInterval = setInterval(checkCollisions, 0);
-
             return () => {
                 clearInterval(collisionCheckInterval);
-                removeHitboxes(); // Cleanup hitboxes on component unmount or pause
             };
-        }, [carPosition, obstacles, gamePaused]);
+        }, [carPosition, obstacles]);
 
                 
     useEffect(() => {
@@ -284,8 +249,6 @@ export default function GameWindow() {
         const handleVisibilityChange = () => {
             if (document.hidden) {
                 setGamePaused(true);
-            } else {
-                setGamePaused(false);
             }
         };
     
@@ -364,7 +327,7 @@ export default function GameWindow() {
                     <div className='railing left'></div>
                     <div className='railing right'></div>
                     <div className='car' style={{ left: `${carPosition}%`, backgroundImage: `url(${carImage})` }}></div>
-                    <img className='start-stop' src={gamePaused ? start : stop} alt="" onClick={toggleGame}/>
+                    <img className={`start-stop ${isLose && 'hidden'}`} src={gamePaused ? start : stop} alt="" onClick={toggleGame}/>
                     <div className={`lose ${!isLose && 'hidden'}`}>
                     <div className="popup">
                         <h1>РАЗМОТАЛСЯ НЫФЛИА</h1>
