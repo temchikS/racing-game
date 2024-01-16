@@ -24,6 +24,7 @@ export default function GameWindow() {
     const movementSpeed = 0.15;
     const [backgroundPosition, setBackgroundPosition] = useState(0);
     const backgroundHeight = 100;
+    const [displayedSpeed, setDisplayedSpeed] = useState(0);
     
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -70,6 +71,18 @@ export default function GameWindow() {
             document.removeEventListener('touchend', handleTouchEnd);
         };
     }, []);
+
+    useEffect(() => {
+        let speedIncreaseInterval;
+    
+        if (!gamePaused) {
+            speedIncreaseInterval = setInterval(() => {
+                setDisplayedSpeed((prevDisplayedSpeed) => Math.min(prevDisplayedSpeed + 100 / 1400, speed));
+            }, 150); // я сам не понял немного
+        }
+    
+        return () => clearInterval(speedIncreaseInterval);
+    }, [gamePaused, speed]);
 
     useEffect(() => {
         let animationFrameId;
@@ -170,45 +183,97 @@ export default function GameWindow() {
 
             return () => clearInterval(obstacleMoveInterval);
         }, [speed, gamePaused]);
-    
+
         useEffect(() => {
             const checkCollisions = () => {
-                const carWidth = 10; 
-                const carHeight = 20; 
+                const carWidth = 10;
+                const carHeight = 15;
 
                 const carLeft = carPosition;
-                const carTop = 85; 
-        
+                const carTop = 85;
+
                 obstacles.forEach((obstacle) => {
                     const obstacleLeft = obstacle.left;
                     const obstacleTop = obstacle.top;
-        
-                    const obstacleWidth = obstacle.size === 'small' ? 5 : 10;
-                    const obstacleHeight = obstacle.size === 'small' ? 10 : 20;
-        
+                    let obstacleWidth, obstacleHeight;
+
+                    if (obstacle.type === 'large') {
+                        obstacleWidth = 12;
+                        obstacleHeight = 25;
+                    } else if (obstacle.type === 'green') {
+                        obstacleWidth = 10;
+                        obstacleHeight = 15;
+                    } else {
+                        obstacleWidth = 5;
+                        obstacleHeight = 10;
+                    }
+
+                    const carRight = carLeft + carWidth;
+                    const carBottom = carTop + carHeight;
+                    const obstacleRight = obstacleLeft + obstacleWidth;
+                    const obstacleBottom = obstacleTop + obstacleHeight;
+
+                    // Create or update hitbox divs
+                    createOrUpdateHitbox('car-hitbox', carLeft, carTop, carWidth, carHeight);
+                    createOrUpdateHitbox(`obstacle-hitbox-${obstacle.id}`, obstacleLeft, obstacleTop, obstacleWidth, obstacleHeight);
+
                     if (
-                        carLeft < obstacleLeft + obstacleWidth &&
-                        carLeft + carWidth > obstacleLeft &&
-                        carTop < obstacleTop + obstacleHeight &&
-                        carTop + carHeight > obstacleTop
+                        carLeft < obstacleRight &&
+                        carRight > obstacleLeft &&
+                        carTop < obstacleBottom &&
+                        carBottom > obstacleTop
                     ) {
-                        console.log('Столкновение!');
+                        console.log('Collision!');
+
                         setGamePaused(true);
                         setObstacles([]);
                         setSpeed(1);
-                        setLose(true)
+                        setLose(true);
+                        removeHitboxes(); 
                     }
                 });
             };
-            const collisionCheckInterval = setInterval(checkCollisions, 20);
-            return () => clearInterval(collisionCheckInterval);
-        }, [carPosition, obstacles]);
-        
+
+            const removeHitboxes = () => {
+                document.querySelectorAll('[id^="car-hitbox"]').forEach((hitbox) => hitbox.remove());
+                document.querySelectorAll('[id^="obstacle-hitbox"]').forEach((hitbox) => hitbox.remove());
+            };
+
+            const createOrUpdateHitbox = (id, left, top, width, height) => {
+                let hitbox = document.getElementById(id);
+            
+                if (!hitbox) {
+                    hitbox = document.createElement('div');
+                    hitbox.id = id;
+                    hitbox.style.position = 'absolute';
+                    hitbox.style.border = '2px solid red';
+                    hitbox.style.transform = 'translate(-95%, -50%)'; 
+                    document.querySelector('.road').appendChild(hitbox);
+                }
+            
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+            
+                hitbox.style.left = `${centerX}%`;
+                hitbox.style.top = `${centerY}vh`;
+                hitbox.style.width = `${width}%`;
+                hitbox.style.height = `${height}vh`;
+            };
+
+            const collisionCheckInterval = setInterval(checkCollisions, 0);
+
+            return () => {
+                clearInterval(collisionCheckInterval);
+                removeHitboxes(); 
+            };
+        }, [carPosition, obstacles, gamePaused]);
+
+                
     useEffect(() => {
         let animationFrameId;
         const moveCar = () => {
-            const maxPosition = 95;
-            const minPosition = 5;
+            const maxPosition = 100;
+            const minPosition = 0;
 
             if (direction === 'ArrowLeft') {
                 setCarPosition((prevPosition) => Math.max(prevPosition - 1, minPosition));
@@ -293,7 +358,7 @@ export default function GameWindow() {
                     <div className='catalog'>
                         <div className={`card ${carImage === audiRs6 && 'chosen'}`}onClick={() => changeCar(audiRs6)}>
                             <img src={audiRs6} alt="car" />
-                            <h2>Ауди рс6</h2>
+                            <h2>Ауди рс 6</h2>
                         </div>
                         <div className={`card ${carImage === tachka && 'chosen'}`} onClick={() => changeCar(tachka)}>
                             <img src={tachka} alt="car" />
@@ -339,6 +404,9 @@ export default function GameWindow() {
                             }}
                         ></div>
                     ))}
+                </div>
+                <div className="speedometer">
+                    <p>Скорость: {(displayedSpeed * 17).toFixed(0)} км/ч</p>
                 </div>
             </div>
         </div>

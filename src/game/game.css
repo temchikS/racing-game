@@ -33,19 +33,20 @@
     position: relative;
     width: 40vw;
     height: 100vh;
-    background-image: url('asphalt.jpg');
-    background-repeat: repeat-y;
+    /* background-image: url('asphalt.jpg');
+    background-repeat: repeat-y; */
     background-color: rgb(98, 98, 98);
-    background-size: auto 100%;
+    /* background-size: auto 100%; */
 }
 
 .grass {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-image: url('grass.jpg');
+    /* background-image: url('grass.jpg');
     background-repeat: repeat-x repeat-y;;
-    background-size: auto 100%;
+    background-size: auto 100%; */
+    background-color: green;
 }
 
 .railing {
@@ -80,8 +81,8 @@
 }
 
 .car {
-    width: 50px; 
-    height: 100px; 
+    width: 10vh; 
+    height: 15vh; 
     background-image: url(audi-rs6.png);
     background-size: 100% 100%;
     position: absolute;
@@ -93,24 +94,25 @@
 .obstacle {
     background-image: url('./bike.png');
     background-size: 100% 100%;
-    width: 30px;
-    height:70px;
+    width: 5vh; 
+    height: 10vh;
     position: absolute;
     transform: translateX(-50%);
     z-index: 2;
 }
 .obstacle.green {
     background-image: url('./vrag.png');
-    width:45px ;
-    height:90px;
+    background-size: 100% 100%;
+    width: 10vh; 
+    height: 15vh;
     z-index: 2;
 }
 
 .obstacle.large {
     background-image: url('./bus.png');
     background-size: 100% 100%;
-    width: 65px;
-    height: 240px;
+    width: 12vh; 
+    height: 25vh;
     z-index: 2;
 }
 .start-stop{
@@ -192,7 +194,7 @@
 .chosen::after{
     content: "Сейчас выбрано";
 }
-@media screen and (max-width: 150px) {
+@media only screen and (max-width: 200px) {
     .road {
         width: 80vw;
     }
@@ -220,6 +222,9 @@
         width: 40px;
         height: 120px;
     }
+    .speedometer {
+        font-size: 16px;
+    }
 }
 
 .popup {
@@ -240,4 +245,12 @@
 
 .popup button {
     margin-top: 10px;
+}
+.speedometer {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    color: white;
+    font-size: 24px;
+    text-align: right;
 }
