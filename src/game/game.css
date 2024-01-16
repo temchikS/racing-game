@@ -201,12 +201,17 @@
     .road {
         width: 300px;
     }
+    .popup h1 {
+        font-size: 16px;
+    }
 }
 
 .popup {
     position: fixed;
     top: 50%;
     left: 50%;
+    width: 50%;
+    min-height: 20%;
     transform: translate(-50%, -50%);
     background-color: white;
     padding: 20px;
@@ -221,4 +226,5 @@
 
 .popup button {
     margin-top: 10px;
+    width: 80%;
 }
