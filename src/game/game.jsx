@@ -199,26 +199,44 @@ export default function GameWindow() {
         useEffect(() => {
             const checkCollisions = () => {
                 const carWidth = 10;
-                const carHeight = 15;
+                let carHeight = 15;
 
                 const carLeft = carPosition;
-                const carTop = 85;
+                let carTop = 85;
 
                 obstacles.forEach((obstacle) => {
                     const obstacleLeft = obstacle.left;
                     const obstacleTop = obstacle.top;
                     let obstacleWidth, obstacleHeight;
-
-                    if (obstacle.type === 'large') {
-                        obstacleWidth = 12;
-                        obstacleHeight = 25;
-                    } else if (obstacle.type === 'green') {
-                        obstacleWidth = 10;
-                        obstacleHeight = 15;
+                    
+                    if (window.innerWidth <= 1024) {
+                        carHeight = 10;
+                        carTop = 90;
+                        if (obstacle.type === 'large') {
+                            obstacleWidth = 12;
+                            obstacleHeight = 15;
+                        } else if (obstacle.type === 'green') {
+                            obstacleWidth = 10;
+                            obstacleHeight = 10;
+                        } else {
+                            obstacleWidth = 5;
+                            obstacleHeight = 5;
+                        }
                     } else {
-                        obstacleWidth = 5;
-                        obstacleHeight = 10;
+                        if (obstacle.type === 'large') {
+                            obstacleWidth = 12;
+                            obstacleHeight = 20;
+                        } else if (obstacle.type === 'green') {
+                            obstacleWidth = 10;
+                            obstacleHeight = 15;
+                        } else {
+                            obstacleWidth = 5;
+                            obstacleHeight = 5;
+                        }
                     }
+
+
+                    
 
                     const carRight = carLeft + carWidth;
                     const carBottom = carTop + carHeight;
