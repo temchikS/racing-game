@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './game.css';
 import audiRs6 from './audi-rs6.png';
 import tachka from './tachka.png';
@@ -21,9 +21,11 @@ export default function GameWindow() {
     const [isLose,setLose] = useState(false);
     const [isMouseDownLeft, setIsMouseDownLeft] = useState(false);
     const [isMouseDownRight, setIsMouseDownRight] = useState(false);
-    const movementSpeed = 0.15;
+    const movementSpeed = 0.85;
     const [backgroundPosition, setBackgroundPosition] = useState(0);
     const backgroundHeight = 100;
+    const [displayedSpeed, setDisplayedSpeed] = useState(0);
+    const isHandlingTouch = useRef(false);
     
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -47,19 +49,23 @@ export default function GameWindow() {
 
     useEffect(() => {
         const handleTouchStart = (event) => {
-            const touchX = event.touches[0].clientX;
-            const screenWidth = window.innerWidth;
+            if (!isHandlingTouch.current) {
+                isHandlingTouch.current = true;
+                const touchX = event.touches[0].clientX;
+                const screenWidth = window.innerWidth;
 
-            if (touchX < screenWidth / 2) {
-                setIsMouseDownLeft(true);
-            } else {
-                setIsMouseDownRight(true);
+                if (touchX < screenWidth / 2) {
+                    setIsMouseDownLeft(true);
+                } else {
+                    setIsMouseDownRight(true);
+                }
             }
         };
 
         const handleTouchEnd = () => {
             setIsMouseDownLeft(false);
             setIsMouseDownRight(false);
+            isHandlingTouch.current = false; // Reset touch handling flag
         };
 
         document.addEventListener('touchstart', handleTouchStart);
@@ -69,31 +75,50 @@ export default function GameWindow() {
             document.removeEventListener('touchstart', handleTouchStart);
             document.removeEventListener('touchend', handleTouchEnd);
         };
-    }, []);
+    }, [isHandlingTouch]);
 
     useEffect(() => {
-        let animationFrameId;
-        const moveCar = () => {
-            const maxPosition = 95;
-            const minPosition = 5;
+        let speedIncreaseInterval;
+    
+        if (!gamePaused) {
+            speedIncreaseInterval = setInterval(() => {
+                setDisplayedSpeed((prevDisplayedSpeed) => Math.min(prevDisplayedSpeed + 100 / 1400, speed));
+            }, 150); // я сам не понял немного
+        }
+    
+        return () => clearInterval(speedIncreaseInterval);
+    }, [gamePaused, speed]);
 
-            if (isMouseDownLeft && carPosition > minPosition) {
-                setCarPosition((prevPosition) => Math.max(prevPosition - movementSpeed, minPosition));
-            } else if (isMouseDownRight && carPosition < maxPosition) {
-                setCarPosition((prevPosition) => Math.min(prevPosition + movementSpeed, maxPosition));
-            }
+    useEffect(() => {
+    let animationFrameId;
 
-            animationFrameId = requestAnimationFrame(moveCar);
-        };
+    const moveCar = () => {
+        const maxPosition = 95;
+        const minPosition = 5;
 
         if ((isMouseDownLeft || isMouseDownRight) && !gamePaused) {
-            moveCar();
+            setCarPosition((prevPosition) => {
+                let newPosition = prevPosition;
+
+                if (isMouseDownLeft && prevPosition > minPosition) {
+                    newPosition = Math.max(prevPosition - movementSpeed, minPosition);
+                } else if (isMouseDownRight && prevPosition < maxPosition) {
+                    newPosition = Math.min(prevPosition + movementSpeed, maxPosition);
+                }
+
+                return newPosition;
+            });
         }
 
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, [isMouseDownLeft, isMouseDownRight, carPosition, gamePaused]);
+        animationFrameId = requestAnimationFrame(moveCar);
+    };
+
+    moveCar();
+
+    return () => {
+        cancelAnimationFrame(animationFrameId);
+    };
+}, [isMouseDownLeft, isMouseDownRight, gamePaused]);
 
     useEffect(() => {
         if (gamePaused) {
@@ -354,6 +379,9 @@ export default function GameWindow() {
                             }}
                         ></div>
                     ))}
+                </div>
+                <div className="speedometer">
+                    <p>Скорость: {(displayedSpeed * 17).toFixed(0)} км/ч</p>
                 </div>
             </div>
         </div>
